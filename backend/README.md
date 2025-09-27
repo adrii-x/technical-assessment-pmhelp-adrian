@@ -125,8 +125,8 @@ Request → JWT Guard → Roles Guard → Controller → Service → Database
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/medportal-backend.git
-   cd medportal-backend
+   git clone https://github.com/adrii-x/technical-assessment-pmhelp-adrian.git
+   cd backend
    ```
 
 2. **Install dependencies**
