@@ -1,0 +1,145 @@
+// backend/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * Models for MedPortal (SQLite-ready)
+ */
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(PATIENT)
+
+  userSubscriptions UserSubscription[]
+
+  appointmentsAsPatient Appointment[] @relation("PatientAppointments")
+  appointmentsAsDoctor  Appointment[] @relation("DoctorAppointments")
+
+  medicalRecordsAsPatient MedicalRecord[] @relation("PatientMedicalRecords")
+  medicalRecordsAsDoctor  MedicalRecord[] @relation("DoctorMedicalRecords")
+
+  availabilitySlots AvailabilitySlot[] @relation("DoctorAvailability")
+
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id                          Int      @id @default(autoincrement())
+  tier                        String   @unique
+  allowedAppointmentsPerMonth Int?
+  priceCents                  Int      @default(0)
+  durationDays                Int      @default(30)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  userSubscriptions UserSubscription[]
+}
+
+model UserSubscription {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  subscriptionId Int
+  startedAt      DateTime  @default(now())
+  expiresAt      DateTime?
+  active         Boolean   @default(true)
+
+  user         User         @relation(fields: [userId], references: [id])
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, subscriptionId, startedAt])
+}
+
+model AvailabilitySlot {
+  id        Int      @id @default(autoincrement())
+  doctorId  Int
+  startTime DateTime
+  endTime   DateTime
+  isBooked  Boolean  @default(false)
+
+  doctor       User          @relation("DoctorAvailability", fields: [doctorId], references: [id])
+  appointments Appointment[] 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+  id              Int               @id @default(autoincrement())
+  patientId       Int
+  doctorId        Int
+  availabilityId  Int?
+  date            DateTime
+  durationMinutes Int?
+  status          AppointmentStatus @default(PENDING)
+  reason          String?
+
+  patient      User              @relation("PatientAppointments", fields: [patientId], references: [id])
+  doctor       User              @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  availability AvailabilitySlot? @relation(fields: [availabilityId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorId, date])
+  @@index([patientId, date])
+}
+
+model MedicalRecord {
+  id          Int     @id @default(autoincrement())
+  patientId   Int
+  doctorId    Int?
+  recordType  String?
+  notes       String?
+  attachments Json?
+
+  patient User  @relation("PatientMedicalRecords", fields: [patientId], references: [id])
+  doctor  User? @relation("DoctorMedicalRecords", fields: [doctorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  actorId    Int?
+  action     String
+  entityType String?
+  entityId   Int?
+  payload    Json?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+}
+
+/**
+ * Enums
+ */
+enum UserRole {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
