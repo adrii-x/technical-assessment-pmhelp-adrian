@@ -114,8 +114,8 @@ The application integrates seamlessly with a NestJS backend and implements enter
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/medportal-frontend.git
-   cd medportal-frontend
+   git clone https://github.com/adrii-x/technical-assessment-pmhelp-adrian.git
+   cd frontend
    ```
 
 2. **Install dependencies**
@@ -442,9 +442,9 @@ VITE_ENABLE_DEV_TOOLS=false
 ### Deployment Platforms
 
 - **Vercel**: Recommended for easy deployment
-- **Netlify**: Alternative with similar features
-- **AWS S3 + CloudFront**: For AWS infrastructure
-- **Docker**: Containerized deployment
+  ```bash
+   https://technical-assessment-pmhelp-adrian.vercel.app
+   ```
 
 ### Performance Optimization
 
