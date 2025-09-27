@@ -798,4 +798,4 @@ For questions, issues, or contributions:
 ---
 
 **MedPortal Backend** - Secure Healthcare Management API
-Built with NestJS, TypeScript, and enterprise-grade security practices.
+Built with NestJS, TypeScript, and enterprise-grade security practices - By Adrian Okonkwo
